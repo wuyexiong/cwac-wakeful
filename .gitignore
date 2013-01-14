@@ -1,0 +1,23 @@
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+*..classpath
+# Mac System file
+*.DS_Store
+
+# generated files
+bin/
+gen/
+proguard/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+project.properties
