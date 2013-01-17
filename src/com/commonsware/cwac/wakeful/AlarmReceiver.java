@@ -29,11 +29,11 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class AlarmReceiver extends BroadcastReceiver {
-  private static final String WAKEFUL_META_DATA="com.commonsware.cwac.wakeful";
+  private static final String WAKEFUL_META_DATA = "com.commonsware.cwac.wakeful";
   
   @Override
   public void onReceive(Context ctxt, Intent intent) {
-    AlarmListener listener=getListener(ctxt);
+    AlarmListener listener = getListener(ctxt);
     
     if (listener!=null) {
       if (intent.getAction()==null) {
@@ -54,21 +54,18 @@ public class AlarmReceiver extends BroadcastReceiver {
   
   @SuppressWarnings("unchecked")
   private WakefulIntentService.AlarmListener getListener(Context ctxt) {
-    PackageManager pm=ctxt.getPackageManager();
-    ComponentName cn=new ComponentName(ctxt, getClass());
+    PackageManager pm = ctxt.getPackageManager();
+    ComponentName cn = new ComponentName(ctxt, getClass());
     
     try {
-      ActivityInfo ai=pm.getReceiverInfo(cn,
-                                         PackageManager.GET_META_DATA);
-      XmlResourceParser xpp=ai.loadXmlMetaData(pm,
-                                               WAKEFUL_META_DATA);
+      ActivityInfo ai = pm.getReceiverInfo(cn, PackageManager.GET_META_DATA);
+      XmlResourceParser xpp = ai.loadXmlMetaData(pm, WAKEFUL_META_DATA);
       
-      while (xpp.getEventType()!=XmlPullParser.END_DOCUMENT) {
-        if (xpp.getEventType()==XmlPullParser.START_TAG) {
+      while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+        if (xpp.getEventType() == XmlPullParser.START_TAG) {
           if (xpp.getName().equals("WakefulIntentService")) {
             String clsName=xpp.getAttributeValue(null, "listener");
             Class<AlarmListener> cls=(Class<AlarmListener>)Class.forName(clsName);
-            
             return(cls.newInstance());
           }
         }
@@ -94,7 +91,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     catch (InstantiationException e) {
       throw new RuntimeException("Could not create instance of listener", e);
     }
-    
     return(null);
   }
 }

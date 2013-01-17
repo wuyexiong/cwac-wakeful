@@ -14,6 +14,7 @@
 
 package com.commonsware.cwac.wakeful;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -22,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.PowerManager;
 
+@SuppressLint("NewApi")
 abstract public class WakefulIntentService extends IntentService {
   abstract protected void doWakefulWork(Intent intent);
 
@@ -32,10 +34,20 @@ abstract public class WakefulIntentService extends IntentService {
 
   synchronized private static PowerManager.WakeLock getLock(Context context) {
     if (lockStatic == null) {
-      PowerManager mgr=
-          (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    	//1.获取PowerManager实例
+        PowerManager mgr = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
 
-      lockStatic=mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, NAME);
+        //2.生成WakeLock实例。int Flags指示要获取哪种WakeLock，不同的Lock对cpu 、屏幕、键盘灯有不同影响。
+        /*PARTIAL_WAKE_LOCK:保持CPU 运转，屏幕和键盘灯有可能是关闭的。
+        SCREEN_DIM_WAKE_LOCK：保持CPU 运转，允许保持屏幕显示但有可能是灰的，允许关闭键盘灯
+        SCREEN_BRIGHT_WAKE_LOCK：保持CPU 运转，允许保持屏幕高亮显示，允许关闭键盘灯
+        FULL_WAKE_LOCK：保持CPU 运转，保持屏幕高亮显示，键盘灯也保持亮度*/
+        lockStatic=mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, NAME);
+        
+        //3.设置计数模式
+        //参考资料
+        //http://www.cnblogs.com/keyindex/articles/1819504.html
+        //http://yueguc.iteye.com/blog/1125435
       lockStatic.setReferenceCounted(true);
     }
 
@@ -87,7 +99,7 @@ abstract public class WakefulIntentService extends IntentService {
     setIntentRedelivery(true);
   }
 
-  @Override
+@Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     PowerManager.WakeLock lock=getLock(this.getApplicationContext());
 
